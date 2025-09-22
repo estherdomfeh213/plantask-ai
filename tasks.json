@@ -3,7 +3,31 @@
         "title": "write thesis ",
         "duration": 20,
         "priority": "high",
-        "deadline": "2025-08-29",
-        "completed": false
+        "deadline": "2025-09-23",
+        "completed": false,
+        "rescheduled": true
+    },
+    {
+        "title": "study chem 101",
+        "duration": 120,
+        "priority": "medium ",
+        "deadline": "2025-09-23",
+        "completed": false,
+        "rescheduled": true
+    },
+    {
+        "title": "code python script",
+        "duration": 50,
+        "priority": "high",
+        "deadline": "2025-08-30",
+        "completed": true
+    },
+    {
+        "title": "call supervisor",
+        "duration": 20,
+        "priority": "low",
+        "deadline": "2025-09-23",
+        "completed": false,
+        "rescheduled": true
     }
 ]

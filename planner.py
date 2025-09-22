@@ -9,13 +9,13 @@ TASKS_FILE = "tasks.json"
 
 def load_tasks():
     if not os.path.exists(TASKS_FILE):
-        return []  # No file yet → return empty list
+        return []  # No file yet, return empty list
     
     with open(TASKS_FILE, "r") as f:
         try:
             return json.load(f)  # Load tasks if JSON is valid
         except json.JSONDecodeError:
-            return []  # File is empty or corrupted → reset to empty list
+            return []  # File is empty or corrupted,  reset to empty list
 
 def save_tasks(tasks):
     with open(TASKS_FILE, "w") as f:
@@ -59,18 +59,57 @@ def mark_task_done(title):
     save_tasks(tasks)
 
 
+def reschedule_tasks():
+    """Moves unfinished tasks to the next day"""
+    tasks = load_tasks()
+    today = datetime.today().date()
+
+    for task in tasks:
+        if not task["completed"]:
+            deadline_date = datetime.strptime(task["deadline"], "%Y-%m-%d").date()
+            if deadline_date < today:
+                new_deadline = today + timedelta(days=1)
+                task["deadline"] = new_deadline.strftime("%Y-%m-%d")
+                task["rescheduled"] = True
+                print(f"🔄 Task '{task['title']}' rescheduled to {task['deadline']}")
+
+    save_tasks(tasks)
+
+def daily_reflection():
+    """Shows completed, pending, and resheduling tasks for the day """
+    tasks = load_tasks()
+    today = datetime.today().date()
+
+    completed = [t["title"] for t in tasks if t["completed"]]
+    pending = [t["title"] for t in tasks if not t["completed"] and t["deadline"] == today.strftime("%Y-%m-%d")]
+    rescheduled = [t["title"] for t in tasks if t.get("rescheduled", False)]
+
+
+    print("\n✨ Daily Reflection ✨")
+    print("\n✅ Completed Tasks:")
+    for t in completed:
+        print(f" - {t}")
+
+    print("\n⏳ Pending Tasks:")
+    for t in pending:
+        print(f" - {t}")
+
+    print("\n🔄 Rescheduled Tasks:")
+    for t in rescheduled:
+        print(f" - {t}")
 
 
 
-
-# Example CLI flow
+# Sample CLI flow
 if __name__ == "__main__":
     while True:
         print("\nPlanTask AI Menu")
         print("1. Add task")
         print("2. Generate schedule")
         print("3. Mark task as done")
-        print("4. Exit")
+        print("4. Reschedule missed tasks")
+        print("5. Daily reflection")
+        print("6. Exit")
 
         choice = input("Choose an option: ")
 
@@ -89,4 +128,11 @@ if __name__ == "__main__":
             mark_task_done(title)
 
         elif choice == "4":
+            reschedule_tasks()
+
+        elif choice == "5":
+            daily_reflection()
+
+
+        elif choice == "6":
             break
