@@ -1,5 +1,18 @@
 # 📅 PlanTask AI  
 
+<p align="center">
+  <img src="banner.png" alt="PlanTask AI Banner" width="80%">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/python-3.12-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/status-active-success?logo=github" alt="Status">
+  <img src="https://img.shields.io/badge/license-MIT-green?logo=open-source-initiative" alt="License">
+  <img src="https://img.shields.io/badge/contributions-welcome-orange?logo=github" alt="Contributions Welcome">
+  <img src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey?logo=windows&logoColor=white" alt="Platform">
+</p>
+
+
 **PlanTask AI** is an open-source, AI-powered daily planner designed for **students and early-career professionals**.  
 It helps you manage **studies, projects, and career growth** by generating adaptive daily schedules.  
 
@@ -45,15 +58,15 @@ plantask-ai/
 └── README.md # Project documentation
 ```
 
-## ⚡ Getting Started
+## Installation
 
-### 1. Clone the repo
+### 1. Clone the repository:
 ```bash
 git clone https://github.com/YOUR-USERNAME/plantask-ai.git
 cd plantask-ai
 ```
 
-### 2. Create virtual environment
+### 2. Create virtual environment(optional but recommended)
 ```bash
 python -m venv venv
 source venv/bin/activate   # Linux/Mac
@@ -69,12 +82,32 @@ pip install -r requirements.txt
 python planner.py
 ```
 
+### Sample interaction:
+```bash
+1. Add task
+2. View tasks
+3. Mark task as done
+4. Exit
+```
+
 
 
 
 
 ## 🤝 Contributing
-Pull requests are welcome! For major changes, open an issue first to discuss your idea.
+Contributions are welcome!
+
+1. Fork the project
+2. Create a new branch (git checkout -b feature/your-feature)
+3. Commit changes (git commit -m "Add new feature")
+4. Push to your fork and submit a Pull Request
+
 
 ## 📜 License
-This project is licensed under the MIT License — free to use and modify.
+Distributed under the MIT License. See LICENSE for details.
+
+⭐ Acknowledgments
+
+[Shields.io] for badges
+[Canva] for the project banner
+The open-source community 💙
