@@ -1,33 +1,26 @@
 [
     {
-        "title": "write thesis ",
+        "title": "cook",
+        "duration": 20,
+        "priority": "2",
+        "deadline": "2025-08-25",
+        "completed": false,
+        "deadline_dt": "2025-08-25 00:00:00"
+    },
+    {
+        "title": "commit code",
         "duration": 20,
         "priority": "high",
-        "deadline": "2025-09-23",
+        "deadline": "2025-09-22",
         "completed": false,
-        "rescheduled": true
+        "deadline_dt": "2025-09-22 00:00:00"
     },
     {
-        "title": "study chem 101",
-        "duration": 120,
-        "priority": "medium ",
-        "deadline": "2025-09-23",
-        "completed": false,
-        "rescheduled": true
-    },
-    {
-        "title": "code python script",
-        "duration": 50,
+        "title": "read a book",
+        "duration": 30,
         "priority": "high",
-        "deadline": "2025-08-30",
-        "completed": true
-    },
-    {
-        "title": "call supervisor",
-        "duration": 20,
-        "priority": "low",
-        "deadline": "2025-09-23",
+        "deadline": "2025-09-22",
         "completed": false,
-        "rescheduled": true
+        "deadline_dt": "2025-09-22 00:00:00"
     }
 ]

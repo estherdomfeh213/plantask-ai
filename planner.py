@@ -18,8 +18,12 @@ def load_tasks():
             return []  # File is empty or corrupted,  reset to empty list
 
 def save_tasks(tasks):
+    def default(o):
+        if isinstance(o, datetime):
+            return o.strftime("%Y-%m-%d %H:%M:%S")
+        return str(o)
     with open(TASKS_FILE, "w") as f:
-        json.dump(tasks, f, indent=4)  
+        json.dump(tasks, f, indent=4, default=default)
 
 
 def add_task(title, duration, priority, deadline):
@@ -38,16 +42,56 @@ def add_task(title, duration, priority, deadline):
 
 
 
-def generate_schedule(start_time="09:00"):
-    tasks = sorted(load_tasks(), key=lambda x: (x["priority"], x["deadline"]))
-    current_time = datetime.strptime(start_time, "%H:%M")
+def generate_schedule(start_time="09:00", end_time="18:00"):
+    tasks = load_tasks()
 
-    print("\n📅 Daily Schedule:")
+    # Map priority to weights
+    priority_map = {"high": 1, "medium": 2, "low": 3}
+
+    # Convert deadlines to datetime for sorting
+    for task in tasks:
+        task["deadline_dt"] = datetime.strptime(task["deadline"], "%Y-%m-%d")
+
+    # Sort tasks by (deadline, priority weight, duration)
+    tasks = sorted(
+        tasks,
+        key=lambda x: (
+            x["deadline_dt"],
+            priority_map.get(x["priority"], 3),
+            x["duration"]
+        )
+    )
+
+    current_time = datetime.strptime(start_time, "%H:%M")
+    end_time = datetime.strptime(end_time, "%H:%M")
+
+    print("\n📅 Optimized Daily Schedule:")
     for task in tasks:
         if not task["completed"]:
-            end_time = current_time + timedelta(minutes=task["duration"])
-            print(f"{current_time.strftime('%H:%M')} - {end_time.strftime('%H:%M')} | {task['title']} ({task['priority']})")
-            current_time = end_time
+            task_deadline = task["deadline_dt"].date()
+
+            # If deadline is today, force priority
+            if task_deadline == datetime.today().date():
+                task_priority = "URGENT"
+            else:
+                task_priority = task["priority"]
+
+            end_slot = current_time + timedelta(minutes=task["duration"])
+
+            # If schedule exceeds workday then move to next day
+            if end_slot > end_time:
+                print(f"⚠️ Not enough time for '{task['title']}' today. Rescheduling...")
+                new_deadline = datetime.today().date() + timedelta(days=1)
+                task["deadline"] = new_deadline.strftime("%Y-%m-%d")
+                task["rescheduled"] = True
+                continue
+
+            print(f"{current_time.strftime('%H:%M')} - {end_slot.strftime('%H:%M')} | {task['title']} ({task_priority})")
+
+            current_time = end_slot
+
+    save_tasks(tasks)
+
 
 
 def mark_task_done(title):
@@ -60,7 +104,7 @@ def mark_task_done(title):
 
 
 def reschedule_tasks():
-    """Moves unfinished tasks to the next day"""
+    """Moves unfinished tasks automatically roll over to the next day"""
     tasks = load_tasks()
     today = datetime.today().date()
 
