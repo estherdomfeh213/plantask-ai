@@ -54,18 +54,21 @@ cd plantask-ai
 ```
 
 ### 2. Create virtual environment
-bash
-Copy code
+```bash
 python -m venv venv
 source venv/bin/activate   # Linux/Mac
 venv\Scripts\activate      # Windows
+```
+
 ### 3. Install dependencies
-bash
-Copy code
+```bash
 pip install -r requirements.txt
+```
 ### 4. Run the planner
-bash
+```bash
 python planner.py
+```
+
 
 
 
