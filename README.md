@@ -51,22 +51,27 @@ plantask-ai/
 ```bash
 git clone https://github.com/YOUR-USERNAME/plantask-ai.git
 cd plantask-ai
-2. Create virtual environment
+```
+
+### 2. Create virtual environment
 bash
 Copy code
 python -m venv venv
 source venv/bin/activate   # Linux/Mac
 venv\Scripts\activate      # Windows
-3. Install dependencies
+### 3. Install dependencies
 bash
 Copy code
 pip install -r requirements.txt
-4. Run the planner
+### 4. Run the planner
 bash
-Copy code
 python planner.py
-🤝 Contributing
+
+
+
+
+## 🤝 Contributing
 Pull requests are welcome! For major changes, open an issue first to discuss your idea.
 
-📜 License
+## 📜 License
 This project is licensed under the MIT License — free to use and modify.
