@@ -1,26 +1,26 @@
 [
     {
-        "title": "cook",
+        "title": "prep for school",
         "duration": 20,
-        "priority": "2",
-        "deadline": "2025-08-25",
-        "completed": false,
-        "deadline_dt": "2025-08-25 00:00:00"
-    },
-    {
-        "title": "commit code",
-        "duration": 20,
-        "priority": "high",
+        "priority": "medium",
         "deadline": "2025-09-22",
-        "completed": false,
+        "completed": true,
         "deadline_dt": "2025-09-22 00:00:00"
     },
     {
-        "title": "read a book",
+        "title": "cook rice",
         "duration": 30,
-        "priority": "high",
+        "priority": "low",
         "deadline": "2025-09-22",
         "completed": false,
         "deadline_dt": "2025-09-22 00:00:00"
+    },
+    {
+        "title": "work on pc",
+        "duration": 90,
+        "priority": "high",
+        "deadline": "2025-10-01",
+        "completed": false,
+        "deadline_dt": "2025-10-01 00:00:00"
     }
 ]
