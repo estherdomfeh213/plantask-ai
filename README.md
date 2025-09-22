@@ -106,7 +106,7 @@ Contributions are welcome!
 ## 📜 License
 Distributed under the MIT License. See LICENSE for details.
 
-⭐ Acknowledgments
+## ⭐ Acknowledgments
 
 [Shields.io] for badges
 [Canva] for the project banner
