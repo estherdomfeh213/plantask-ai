@@ -35,6 +35,7 @@ If you miss a task, PlanTask AI automatically **reschedules and reprioritizes**,
 ---
 
 ## 📂 Project Structure
+
 plantask-ai/
 ├── planner.py # Core CLI logic
 ├── tasks.json # Task storage
@@ -43,8 +44,6 @@ plantask-ai/
 ├── LICENSE # MIT license
 └── README.md # Project documentation
 
-yaml
-Copy code
 
 ---
 
