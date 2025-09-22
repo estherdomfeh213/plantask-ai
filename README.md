@@ -1,7 +1,7 @@
 # 📅 PlanTask AI  
 
 <p align="center">
-  <img src="banner.png" alt="PlanTask AI Banner" width="80%">
+  <img src="plantask-banner.png" alt="PlanTask AI Banner" width="80%">
 </p>
 
 <p align="center">
