@@ -1,32 +1,15 @@
 [
     {
-        "title": "prep for school",
-        "duration": 20,
-        "priority": "medium",
-        "deadline": "2025-09-22",
-        "completed": true,
-        "deadline_dt": "2025-09-22 00:00:00"
+        "title": "write thesis ",
+        "duration": 0,
+        "priority": "low",
+        "deadline": "2025-09-24",
+        "completed": false
     },
     {
-        "title": "cook rice",
+        "title": "cook food at 3pm for  low prority",
         "duration": 30,
-        "priority": "low",
-        "deadline": "2025-09-22",
-        "completed": false,
-        "deadline_dt": "2025-09-22 00:00:00"
-    },
-    {
-        "title": "work on pc",
-        "duration": 90,
-        "priority": "high",
-        "deadline": "2025-10-01",
-        "completed": false,
-        "deadline_dt": "2025-10-01 00:00:00"
-    },
-    {
-        "title": "Cook a meal at 2pm, , 1 hou",
-        "duration": 60,
-        "priority": "low",
+        "priority": "medium",
         "deadline": "2025-09-23",
         "completed": false
     }
