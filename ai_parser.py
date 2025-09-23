@@ -1,43 +1,63 @@
 import re
+import spacy
 from datetime import datetime, timedelta
 
+# Load small English model
+nlp = spacy.load("en_core_web_sm")
+
 def parse_task_input(user_input):
-    # Default values
+    doc = nlp(user_input)
+
+    # Defaults
+    title = user_input
     duration = 60
     priority = "medium"
     deadline = datetime.today().strftime("%Y-%m-%d")
 
-    # Extract priority
-    if "high priority" in user_input.lower():
+    text_lower = user_input.lower()
+
+    # --- Priority ---
+    if "high" in text_lower:
         priority = "high"
-    elif "low priority" in user_input.lower():
+    elif "low" in text_lower:
         priority = "low"
 
-    # Extract duration (e.g., "2 hours" or "30 minutes")
-    match = re.search(r"(\d+)\s*(hour|hours|minute|minutes)", user_input.lower())
+    # --- Duration (regex fallback) ---
+    match = re.search(r"(\d+)\s*(hour|hours|minute|minutes)", text_lower)
     if match:
         value, unit = int(match.group(1)), match.group(2)
-        if "hour" in unit:
-            duration = value * 60
-        else:
-            duration = value
+        duration = value * 60 if "hour" in unit else value
 
-    # Extract deadline (e.g., "tomorrow" or "today")
-    if "tomorrow" in user_input.lower():
+    # --- Deadline (explicit before NLP) ---
+    if "tomorrow" in text_lower:
         deadline = (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")
-    elif "today" in user_input.lower():
+    elif "today" in text_lower:
         deadline = datetime.today().strftime("%Y-%m-%d")
+    else:
+        # --- Try spaCy DATE entities ---
+        for ent in doc.ents:
+            if ent.label_ in ["DATE", "TIME"]:
+                try:
+                    parsed = datetime.strptime(ent.text, "%B %d")  # e.g., "September 23"
+                    deadline = parsed.replace(year=datetime.today().year).strftime("%Y-%m-%d")
+                except:
+                    pass
 
-    # Title = cleaned sentence without keywords
-    title = re.sub(r"(today|tomorrow|high priority|low priority|\d+\s*(hours?|minutes?))", "", user_input, flags=re.IGNORECASE).strip()
+    # --- Title cleanup ---
+    title = re.sub(
+        r"(today|tomorrow|high priority|low priority|\d+\s*(hours?|minutes?))",
+        "",
+        user_input,
+        flags=re.IGNORECASE,
+    ).strip()
 
     return {
         "title": title if title else "Untitled Task",
         "duration": duration,
         "priority": priority,
-        "deadline": deadline
+        "deadline": deadline,
     }
 
 # Demo
 if __name__ == "__main__":
-    print(parse_task_input("Finish essay tomorrow at 3pm, high priority, 2 hours"))
+    print(parse_task_input("Write essay tomorrow, high priority, 2 hours"))
