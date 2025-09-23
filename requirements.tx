@@ -4,5 +4,6 @@ python_version >= "3.12"
 rich>=13.0.0
 python-dateutil>=2.8.2
 pytest >=-8.4.2
+
 spacy
 en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0.tar.gz
