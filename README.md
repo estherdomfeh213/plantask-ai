@@ -1,5 +1,6 @@
 # 📅 PlanTask AI  
 
+
 <p align="center">
   <img src="plantask-banner.png" alt="PlanTask AI Banner" width="80%">
 </p>
@@ -11,6 +12,8 @@
   <img src="https://img.shields.io/badge/contributions-welcome-orange?logo=github" alt="Contributions Welcome">
   <img src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey?logo=windows&logoColor=white" alt="Platform">
 </p>
+
+[![CI](https://github.com/estherdomfeh213/plantask-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/estherdomfeh213/plantask-ai/actions/workflows/ci.yml)
 
 
 **PlanTask AI** is an open-source, AI-powered daily planner designed for **students and early-career professionals**.  
@@ -26,6 +29,10 @@ If you miss a task, PlanTask AI automatically **reschedules and reprioritizes**,
 - 🔄 Reschedule missed tasks to the next day  
 - 🎯 Mark tasks as complete  
 - 📊 (Coming soon) Daily reflections and AI-powered task breakdowns  
+- 🧠 AI task parsing (spaCy)  
+- ⏰ Smart scheduling & rescheduling  
+- 📅 Daily reflections & summaries  
+- ✅ Tested with CI/CD (GitHub Actions)
 
 ---
 
@@ -37,13 +44,13 @@ If you miss a task, PlanTask AI automatically **reschedules and reprioritizes**,
 
 ---
 
-## 🚀 Roadmap
+## 📌 Roadmap
 - [x] CLI MVP — task input, scheduling, mark complete  
 - [x] Smart rescheduling for missed tasks  
-- [x] AI integration (natural input, task breakdowns)  
-- [ ] FastAPI backend  
-- [ ] Web UI (React/Streamlit)  
-- [ ] Integrations (Google Calendar, Notion)  
+- [x] Improve AI parsing (smarter NLP, more date/time handling) 
+- [ ] Task database (SQLite/Postgres) 
+- [ ] Web app (FastAPI + React) 
+- [ ] Mobile integration (Flutter/React Native) 
 
 ---
 
@@ -79,17 +86,13 @@ pip install -r requirements.txt
 ```
 ### 4. Run the planner
 ```bash
-python planner.py
+python planner.py "Prepare slides next Friday, 45 minutes, high priority"
 ```
 
-### Sample interaction:
+### 5. Run tests:
 ```bash
-1. Add task
-2. View tasks
-3. Mark task as done
-4. Exit
+pytest -v
 ```
-
 
 
 
