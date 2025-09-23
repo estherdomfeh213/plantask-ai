@@ -28,3 +28,10 @@ def test_default_values():
     assert result["duration"] == 60
     assert re.match(r"\d{4}-\d{2}-\d{2}", result["deadline"])
     assert "brainstorm" in result["title"].lower()
+
+
+def test_spacy_date():
+    result = parse_task_input("Prepare slides next Friday, 45 minutes, high priority")
+    assert result["priority"] == "high"
+    assert result["duration"] == 45
+    assert "prepare slides" in result["title"].lower()
