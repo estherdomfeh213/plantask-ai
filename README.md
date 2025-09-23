@@ -39,8 +39,8 @@ If you miss a task, PlanTask AI automatically **reschedules and reprioritizes**,
 
 ## 🚀 Roadmap
 - [x] CLI MVP — task input, scheduling, mark complete  
-- [ ] Smart rescheduling for missed tasks  
-- [ ] AI integration (natural input, task breakdowns)  
+- [x] Smart rescheduling for missed tasks  
+- [x] AI integration (natural input, task breakdowns)  
 - [ ] FastAPI backend  
 - [ ] Web UI (React/Streamlit)  
 - [ ] Integrations (Google Calendar, Notion)  
