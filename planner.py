@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime, timedelta
+from ai_parser import parse_task_input
 
 
 TASKS_FILE = "tasks.json"
@@ -153,7 +154,8 @@ if __name__ == "__main__":
         print("3. Mark task as done")
         print("4. Reschedule missed tasks")
         print("5. Daily reflection")
-        print("6. Exit")
+        print("6. Add task with AI input")
+        print("7. Exit")
 
         choice = input("Choose an option: ")
 
@@ -176,7 +178,12 @@ if __name__ == "__main__":
 
         elif choice == "5":
             daily_reflection()
-
-
+        
         elif choice == "6":
+            user_input = input("Describe your task: ")
+            task_data = parse_task_input(user_input)
+            add_task(task_data["title"], task_data["duration"], task_data["priority"], task_data["deadline"])
+
+
+        elif choice == "7":
             break
