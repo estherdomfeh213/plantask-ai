@@ -1,10 +1,12 @@
 import argparse
 from datetime import datetime
 from database import Database
+import os
 
 class Planner:
     def __init__(self):
-        self.db = Database()
+        db_name = os.environ.get("PLANNER_DB", "planner.db")
+        self.db = Database(db_name)
 
     def add_task(self, title, duration, priority, deadline):
         task_id = self.db.add_task(title, duration, priority, deadline)
