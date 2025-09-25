@@ -1,4 +1,5 @@
-import os
+import sys, os
+import re
 import tempfile
 import pytest
 from database import Database
