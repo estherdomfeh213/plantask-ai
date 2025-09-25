@@ -1,18 +1,12 @@
-import sys, os
-import re
-import tempfile
 import pytest
 from database import Database
 
 @pytest.fixture
 def db():
-    # use a temporary database for testing
-    db_fd, db_path = tempfile.mkstemp()
-    database = Database(db_path)
+    # Use an in-memory SQLite DB for testing
+    database = Database(":memory:")
     yield database
     database.close()
-    os.close(db_fd)
-    os.remove(db_path)
 
 
 def test_add_and_get_task(db):
