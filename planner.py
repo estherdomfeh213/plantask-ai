@@ -1,189 +1,64 @@
-import json
-import os
-from datetime import datetime, timedelta
-from ai_parser import parse_task_input
+from database import Database
+from datetime import datetime
+
+class Planner:
+    def __init__(self):
+        self.db = Database()
+
+    def add_task(self, title, duration, priority, deadline):
+        """Add a new task into the database"""
+        return self.db.add_task(title, duration, priority, deadline)
+
+    def show_tasks(self):
+        """Retrieve and print all tasks from the database"""
+        tasks = self.db.get_tasks()
+        if not tasks:
+            print("✅ No tasks scheduled.")
+            return
+
+        print("\n📋 Current Tasks:")
+        for task in tasks:
+            task_id, title, duration, priority, deadline = task
+            print(f"  [{task_id}] {title} | {duration} min | {priority} | due {deadline}")
+
+    def delete_task(self, task_id):
+        """Remove a task by ID"""
+        self.db.delete_task(task_id)
+        print(f"🗑️ Task {task_id} deleted.")
+
+    def add_reflection(self, reflection):
+        """Add or update today’s reflection"""
+        today = datetime.today().strftime("%Y-%m-%d")
+        self.db.add_reflection(today, reflection)
+        print("✍️ Reflection saved for today.")
+
+    def show_reflection(self, date=None):
+        """Show reflection for a given date (default: today)"""
+        if not date:
+            date = datetime.today().strftime("%Y-%m-%d")
+        reflection = self.db.get_reflection(date)
+        if reflection:
+            print(f"\n📖 Reflection for {date}: {reflection[0]}")
+        else:
+            print(f"⚠️ No reflection found for {date}.")
+
+    def close(self):
+        self.db.close()
 
 
-TASKS_FILE = "tasks.json"
-
-
-
-def load_tasks():
-    if not os.path.exists(TASKS_FILE):
-        return []  # No file yet, return empty list
-    
-    with open(TASKS_FILE, "r") as f:
-        try:
-            return json.load(f)  # Load tasks if JSON is valid
-        except json.JSONDecodeError:
-            return []  # File is empty or corrupted,  reset to empty list
-
-def save_tasks(tasks):
-    def default(o):
-        if isinstance(o, datetime):
-            return o.strftime("%Y-%m-%d %H:%M:%S")
-        return str(o)
-    with open(TASKS_FILE, "w") as f:
-        json.dump(tasks, f, indent=4, default=default)
-
-
-def add_task(title, duration, priority, deadline):
-    tasks = load_tasks()
-    task = {
-        "title": title,
-        "duration": duration,   # in minutes
-        "priority": priority, # high, medium, low 
-        "deadline": deadline,  # YYYY-MM-DD
-        "completed": False 
-    }
-
-    tasks. append(task)
-    save_tasks(tasks)
-    print(f"✅ Task '{title} added!")
-
-
-
-def generate_schedule(start_time="09:00", end_time="18:00"):
-    tasks = load_tasks()
-
-    # Map priority to weights
-    priority_map = {"high": 1, "medium": 2, "low": 3}
-
-    # Convert deadlines to datetime for sorting
-    for task in tasks:
-        task["deadline_dt"] = datetime.strptime(task["deadline"], "%Y-%m-%d")
-
-    # Sort tasks by (deadline, priority weight, duration)
-    tasks = sorted(
-        tasks,
-        key=lambda x: (
-            x["deadline_dt"],
-            priority_map.get(x["priority"], 3),
-            x["duration"]
-        )
-    )
-
-    current_time = datetime.strptime(start_time, "%H:%M")
-    end_time = datetime.strptime(end_time, "%H:%M")
-
-    print("\n📅 Optimized Daily Schedule:")
-    for task in tasks:
-        if not task["completed"]:
-            task_deadline = task["deadline_dt"].date()
-
-            # If deadline is today, force priority
-            if task_deadline == datetime.today().date():
-                task_priority = "URGENT"
-            else:
-                task_priority = task["priority"]
-
-            end_slot = current_time + timedelta(minutes=task["duration"])
-
-            # If schedule exceeds workday then move to next day
-            if end_slot > end_time:
-                print(f"⚠️ Not enough time for '{task['title']}' today. Rescheduling...")
-                new_deadline = datetime.today().date() + timedelta(days=1)
-                task["deadline"] = new_deadline.strftime("%Y-%m-%d")
-                task["rescheduled"] = True
-                continue
-
-            print(f"{current_time.strftime('%H:%M')} - {end_slot.strftime('%H:%M')} | {task['title']} ({task_priority})")
-
-            current_time = end_slot
-
-    save_tasks(tasks)
-
-
-
-def mark_task_done(title):
-    tasks = load_tasks()
-    for task in tasks:
-        if task["title"].lower() == title.lower():
-            task["completed"] = True
-            print(f"🎯 Task '{title}' marked as complete!")
-    save_tasks(tasks)
-
-
-def reschedule_tasks():
-    """Moves unfinished tasks automatically roll over to the next day"""
-    tasks = load_tasks()
-    today = datetime.today().date()
-
-    for task in tasks:
-        if not task["completed"]:
-            deadline_date = datetime.strptime(task["deadline"], "%Y-%m-%d").date()
-            if deadline_date < today:
-                new_deadline = today + timedelta(days=1)
-                task["deadline"] = new_deadline.strftime("%Y-%m-%d")
-                task["rescheduled"] = True
-                print(f"🔄 Task '{task['title']}' rescheduled to {task['deadline']}")
-
-    save_tasks(tasks)
-
-def daily_reflection():
-    """Shows completed, pending, and resheduling tasks for the day """
-    tasks = load_tasks()
-    today = datetime.today().date()
-
-    completed = [t["title"] for t in tasks if t["completed"]]
-    pending = [t["title"] for t in tasks if not t["completed"] and t["deadline"] == today.strftime("%Y-%m-%d")]
-    rescheduled = [t["title"] for t in tasks if t.get("rescheduled", False)]
-
-
-    print("\n✨ Daily Reflection ✨")
-    print("\n✅ Completed Tasks:")
-    for t in completed:
-        print(f" - {t}")
-
-    print("\n⏳ Pending Tasks:")
-    for t in pending:
-        print(f" - {t}")
-
-    print("\n🔄 Rescheduled Tasks:")
-    for t in rescheduled:
-        print(f" - {t}")
-
-
-
-# Sample CLI flow
+# --- Demo Run ---
 if __name__ == "__main__":
-    while True:
-        print("\nPlanTask AI Menu")
-        print("1. Add task")
-        print("2. Generate schedule")
-        print("3. Mark task as done")
-        print("4. Reschedule missed tasks")
-        print("5. Daily reflection")
-        print("6. Add task with AI input")
-        print("7. Exit")
+    planner = Planner()
 
-        choice = input("Choose an option: ")
+    # Add tasks
+    planner.add_task("Finish CI setup", 60, "high", "2025-09-23")
+    planner.add_task("Write database tests", 45, "medium", "2025-09-24")
 
-        if choice == "1":
-            title = input("Task title: ")
-            duration = int(input("Duration (minutes): "))
-            priority = input("Priority (high/medium/low): ")
-            deadline = input("Deadline (YYYY-MM-DD): ")
-            add_task(title, duration, priority, deadline)
+    # Show tasks
+    planner.show_tasks()
 
-        elif choice == "2":
-            generate_schedule()
+    # Add reflection
+    planner.add_reflection("Today I integrated SQLite with my planner.")
+    planner.show_reflection()
 
-        elif choice == "3":
-            title = input("Enter task title to mark as done: ")
-            mark_task_done(title)
-
-        elif choice == "4":
-            reschedule_tasks()
-
-        elif choice == "5":
-            daily_reflection()
-        
-        elif choice == "6":
-            user_input = input("Describe your task: ")
-            task_data = parse_task_input(user_input)
-            add_task(task_data["title"], task_data["duration"], task_data["priority"], task_data["deadline"])
-
-
-        elif choice == "7":
-            break
+    planner.close()
