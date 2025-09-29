@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Daily Reflections</h2>
+
+<form method="post">
+    <textarea name="entry" rows="3" cols="50" placeholder="Write your reflection..." required></textarea><br><br>
+    <button type="submit">Save Reflection</button>
+</form>
+
+<h3>Past Reflections</h3>
+<ul>
+    {% for reflection in reflections %}
+    <li><strong>{{ reflection[1] }}:</strong> {{ reflection[0] }}</li>
+    {% endfor %}
+</ul>
+{% if not reflections %}
+<p>📝 No reflections yet.</p>
+{% endif %}
+{% endblock %}

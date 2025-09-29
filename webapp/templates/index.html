@@ -1,9 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<a href="/add">➕ Add Task</a>
+<a href="/add">➕ Add Task</a> | 
+<a href="/reflections">✍️ Reflections</a>
+<form action="/reschedule" method="post" style="display:inline;">
+    <button type="submit">🔄 Reschedule Overdue</button>
+</form>
+
 <table>
     <tr>
-        <th>ID</th><th>Title</th><th>Duration</th><th>Priority</th><th>Deadline</th>
+        <th>ID</th><th>Title</th><th>Duration</th><th>Priority</th><th>Deadline</th><th>Actions</th>
     </tr>
     {% for task in tasks %}
     <tr>
@@ -12,6 +17,11 @@
         <td>{{ task[2] }} min</td>
         <td>{{ task[3] }}</td>
         <td>{{ task[4] }}</td>
+        <td>
+            <form action="/delete/{{ task[0] }}" method="post" style="display:inline;">
+                <button type="submit">🗑 Delete</button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>

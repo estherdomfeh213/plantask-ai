@@ -8,11 +8,27 @@ class Planner:
     def __init__(self):
         db_name = os.environ.get("PLANNER_DB", "planner.db")
         self.db = Database(db_name)
+        
+    def __init__(self):
+        self.tasks = []
+        self.reflections = []
 
     #  TASKS 
+    # def add_task(self, title, duration, priority, deadline):
+    #     task_id = self.db.add_task(title, duration, priority, deadline)
+    #     print(f"Task added with ID {task_id}")
+
     def add_task(self, title, duration, priority, deadline):
-        task_id = self.db.add_task(title, duration, priority, deadline)
-        print(f"Task added with ID {task_id}")
+        task = {
+            "id": len(self.tasks) + 1,
+            "title": title,
+            "duration": duration,
+            "priority": priority,
+            "deadline": deadline
+        }
+        self.tasks.append(task)
+        print(f"Task added with ID {task['id']}")
+        return task
 
     def show_tasks(self):
         """Retrieve and print tasks with smarter prioritization"""
@@ -33,9 +49,14 @@ class Planner:
             task_id, title, duration, priority, deadline = task
             print(f"  [{task_id}] {title} | {duration} min | {priority} | due {deadline}")
 
-    def delete_task(self, task_id):
-        self.db.delete_task(task_id)
-        print(f"Task {task_id} deleted.")
+    # def delete_task(self, task_id):
+    #     self.db.delete_task(task_id)
+    #     print(f"Task {task_id} deleted.")
+    def delete_task(self, task_id: int):
+        self.tasks = [t for t in self.tasks if t["id"] != task_id]
+
+    def list_tasks(self):
+        return self.tasks
 
     def reschedule_tasks(self):
         """Move overdue tasks to today"""
@@ -57,10 +78,13 @@ class Planner:
         print(f"Rescheduled {updated} overdue tasks.")
 
     # REFLECTIONS 
-    def add_reflection(self, reflection):
-        today = datetime.today().strftime("%Y-%m-%d")
-        self.db.add_reflection(today, reflection)
-        print("Reflection saved for today.")
+    # def add_reflection(self, reflection):
+    #     today = datetime.today().strftime("%Y-%m-%d")
+    #     self.db.add_reflection(today, reflection)
+    #     print("Reflection saved for today.")
+    def add_reflection(self, entry: str):
+        self.reflections.append(entry)
+        return entry
 
     def show_reflection(self, date=None):
         if not date:
