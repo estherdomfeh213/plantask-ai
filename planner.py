@@ -3,22 +3,33 @@ from datetime import datetime
 from database import Database
 import os
 
+
 class Planner:
     def __init__(self):
         db_name = os.environ.get("PLANNER_DB", "planner.db")
         self.db = Database(db_name)
 
+    #  TASKS 
     def add_task(self, title, duration, priority, deadline):
         task_id = self.db.add_task(title, duration, priority, deadline)
         print(f"Task added with ID {task_id}")
 
     def show_tasks(self):
+        """Retrieve and print tasks with smarter prioritization"""
         tasks = self.db.get_tasks()
         if not tasks:
             print("No tasks scheduled.")
             return
-        print("\nCurrent Tasks:")
-        for task in tasks:
+
+        # Sort by deadline then priority
+        priority_order = {"high": 0, "medium": 1, "low": 2}
+        tasks_sorted = sorted(
+            tasks,
+            key=lambda t: (t[4] or "9999-12-31", priority_order.get(t[3], 1))
+        )
+
+        print("\nCurrent Tasks (sorted):")
+        for task in tasks_sorted:
             task_id, title, duration, priority, deadline = task
             print(f"  [{task_id}] {title} | {duration} min | {priority} | due {deadline}")
 
@@ -26,10 +37,30 @@ class Planner:
         self.db.delete_task(task_id)
         print(f"Task {task_id} deleted.")
 
+    def reschedule_tasks(self):
+        """Move overdue tasks to today"""
+        today = datetime.today().strftime("%Y-%m-%d")
+        tasks = self.db.get_tasks()
+
+        updated = 0
+        for task in tasks:
+            task_id, title, duration, priority, deadline = task
+            if deadline and deadline < today:
+                # push overdue tasks to today
+                self.db.conn.execute(
+                    "UPDATE tasks SET deadline = ? WHERE id = ?",
+                    (today, task_id)
+                )
+                updated += 1
+
+        self.db.conn.commit()
+        print(f"Rescheduled {updated} overdue tasks.")
+
+    # REFLECTIONS 
     def add_reflection(self, reflection):
         today = datetime.today().strftime("%Y-%m-%d")
         self.db.add_reflection(today, reflection)
-        print(" Reflection saved for today.")
+        print("Reflection saved for today.")
 
     def show_reflection(self, date=None):
         if not date:
@@ -44,6 +75,7 @@ class Planner:
         self.db.close()
 
 
+#  CLI 
 def main():
     parser = argparse.ArgumentParser(description="PlanTask AI CLI")
     subparsers = parser.add_subparsers(dest="command")
@@ -62,6 +94,9 @@ def main():
     delete_parser = subparsers.add_parser("delete", help="Delete a task")
     delete_parser.add_argument("task_id", type=int, help="Task ID to delete")
 
+    # Reschedule Tasks
+    subparsers.add_parser("reschedule", help="Reschedule overdue tasks")
+
     # Add Reflection
     reflect_parser = subparsers.add_parser("reflect", help="Add today’s reflection")
     reflect_parser.add_argument("reflection", type=str, help="Reflection text")
@@ -79,6 +114,8 @@ def main():
         planner.show_tasks()
     elif args.command == "delete":
         planner.delete_task(args.task_id)
+    elif args.command == "reschedule":
+        planner.reschedule_tasks()
     elif args.command == "reflect":
         planner.add_reflection(args.reflection)
     elif args.command == "reflection":
