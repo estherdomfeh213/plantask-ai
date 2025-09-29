@@ -3,6 +3,8 @@ import subprocess
 import tempfile
 import pytest
 from database import Database
+import sys
+from datetime import datetime, timedelta
 
 @pytest.fixture(autouse=True)
 def clean_db():
@@ -15,23 +17,25 @@ def clean_db():
 
 
 def run_cli(args):
-    """Helper to run CLI commands and capture output"""
+    """Helper to run CLI commands and capture output."""
     result = subprocess.run(
-        ["python", "planner.py"] + args,
+        [sys.executable, "planner.py"] + args,
         capture_output=True,
         text=True
     )
-    return result.stdout.strip(), result.stderr.strip(), result.returncode
-
+    return result.stdout, result.stderr, result.returncode
 
 def test_add_and_show_task():
-    out, err, code = run_cli(["add", "Test Task", "--duration", "30", "--priority", "high", "--deadline", "2025-09-30"])
+    out, err, code = run_cli([
+        "add", "Test Task", "--duration", "30", "--priority", "high", "--deadline", "2025-09-30"
+    ])
     assert code == 0
     assert "Task added" in out
 
     out, _, _ = run_cli(["show"])
     assert "Test Task" in out
-
+    assert "30 min" in out
+    assert "high" in out
 
 def test_delete_task():
     run_cli(["add", "Temp Task", "--duration", "15", "--priority", "low", "--deadline", "2025-09-25"])
@@ -40,8 +44,7 @@ def test_delete_task():
 
     run_cli(["delete", "1"])
     out, _, _ = run_cli(["show"])
-    assert "No tasks scheduled" in out
-
+    assert "No tasks scheduled." in out
 
 def test_add_and_show_reflection():
     out, _, code = run_cli(["reflect", "Great progress today!"])
@@ -50,3 +53,19 @@ def test_add_and_show_reflection():
 
     out, _, _ = run_cli(["reflection"])
     assert "Great progress today!" in out
+
+def test_reschedule_task():
+    # Add overdue task
+    yesterday = (datetime.today() - timedelta(days=1)).strftime("%Y-%m-%d")
+    run_cli(["add", "Overdue Task", "--duration", "20", "--priority", "medium", "--deadline", yesterday])
+
+    # Run reschedule
+    out, _, code = run_cli(["reschedule"])
+    assert code == 0
+    assert "Rescheduled" in out
+
+    # Show tasks, deadline should now be today
+    today = datetime.today().strftime("%Y-%m-%d")
+    out, _, _ = run_cli(["show"])
+    assert "Overdue Task" in out
+    assert today in out
