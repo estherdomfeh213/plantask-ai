@@ -8,3 +8,7 @@ pytest
 FastAPI
 Jinja
 Uvicorn
+fastapi
+uvicorn
+jinja2
+
