@@ -1,43 +1,27 @@
-import argparse
+import os
 from datetime import datetime
 from database import Database
-import os
-
 
 class Planner:
-    def __init__(self):
-        db_name = os.environ.get("PLANNER_DB", "planner.db")
+    def __init__(self, db_path=None):
+        db_name = db_path or os.environ.get("PLANNER_DB", "planner.db")
         self.db = Database(db_name)
-        
-    def __init__(self):
-        self.tasks = []
-        self.reflections = []
 
-    #  TASKS 
-    # def add_task(self, title, duration, priority, deadline):
-    #     task_id = self.db.add_task(title, duration, priority, deadline)
-    #     print(f"Task added with ID {task_id}")
-
+    # TASKS
     def add_task(self, title, duration, priority, deadline):
-        task = {
-            "id": len(self.tasks) + 1,
-            "title": title,
-            "duration": duration,
-            "priority": priority,
-            "deadline": deadline
-        }
-        self.tasks.append(task)
-        print(f"Task added with ID {task['id']}")
-        return task
+        query = "INSERT INTO tasks (title, duration, priority, deadline) VALUES (?, ?, ?, ?)"
+        cur = self.db.conn.execute(query, (title, duration, priority, deadline))
+        self.db.conn.commit()
+        task_id = cur.lastrowid
+        print(f"Task added with ID {task_id}")
+        return task_id
 
     def show_tasks(self):
-        """Retrieve and print tasks with smarter prioritization"""
-        tasks = self.db.get_tasks()
+        tasks = self.list_tasks()
         if not tasks:
             print("No tasks scheduled.")
             return
 
-        # Sort by deadline then priority
         priority_order = {"high": 0, "medium": 1, "low": 2}
         tasks_sorted = sorted(
             tasks,
@@ -49,42 +33,44 @@ class Planner:
             task_id, title, duration, priority, deadline = task
             print(f"  [{task_id}] {title} | {duration} min | {priority} | due {deadline}")
 
-    # def delete_task(self, task_id):
-    #     self.db.delete_task(task_id)
-    #     print(f"Task {task_id} deleted.")
     def delete_task(self, task_id: int):
-        self.tasks = [t for t in self.tasks if t["id"] != task_id]
+        self.db.conn.execute("DELETE FROM tasks WHERE id=?", (task_id,))
+        self.db.conn.commit()
+        print(f"Task {task_id} deleted.")
 
     def list_tasks(self):
-        return self.tasks
+        return self.db.conn.execute(
+            "SELECT id, title, duration, priority, deadline FROM tasks"
+        ).fetchall()
 
     def reschedule_tasks(self):
-        """Move overdue tasks to today"""
         today = datetime.today().strftime("%Y-%m-%d")
-        tasks = self.db.get_tasks()
-
+        tasks = self.list_tasks()
         updated = 0
         for task in tasks:
             task_id, title, duration, priority, deadline = task
             if deadline and deadline < today:
-                # push overdue tasks to today
                 self.db.conn.execute(
-                    "UPDATE tasks SET deadline = ? WHERE id = ?",
-                    (today, task_id)
+                    "UPDATE tasks SET deadline = ? WHERE id = ?", (today, task_id)
                 )
                 updated += 1
-
         self.db.conn.commit()
         print(f"Rescheduled {updated} overdue tasks.")
 
-    # REFLECTIONS 
-    # def add_reflection(self, reflection):
-    #     today = datetime.today().strftime("%Y-%m-%d")
-    #     self.db.add_reflection(today, reflection)
-    #     print("Reflection saved for today.")
-    def add_reflection(self, entry: str):
-        self.reflections.append(entry)
-        return entry
+    # REFLECTIONS
+    def add_reflection(self, reflection: str, date: str = None):
+        if not date:
+            date = datetime.today().strftime("%Y-%m-%d")
+        self.db.conn.execute(
+            "INSERT INTO reflections (reflection, date) VALUES (?, ?)", (reflection, date)
+        )
+        self.db.conn.commit()
+        print("Reflection saved for today.")
+
+    def list_reflections(self):
+        return self.db.conn.execute(
+            "SELECT reflection, date FROM reflections ORDER BY date DESC"
+        ).fetchall()
 
     def show_reflection(self, date=None):
         if not date:
@@ -97,58 +83,3 @@ class Planner:
 
     def close(self):
         self.db.close()
-
-
-#  CLI 
-def main():
-    parser = argparse.ArgumentParser(description="PlanTask AI CLI")
-    subparsers = parser.add_subparsers(dest="command")
-
-    # Add Task
-    add_parser = subparsers.add_parser("add", help="Add a new task")
-    add_parser.add_argument("title", type=str, help="Task title")
-    add_parser.add_argument("--duration", type=int, default=60, help="Task duration in minutes")
-    add_parser.add_argument("--priority", type=str, default="medium", choices=["low", "medium", "high"])
-    add_parser.add_argument("--deadline", type=str, help="Deadline (YYYY-MM-DD)")
-
-    # Show Tasks
-    subparsers.add_parser("show", help="Show all tasks")
-
-    # Delete Task
-    delete_parser = subparsers.add_parser("delete", help="Delete a task")
-    delete_parser.add_argument("task_id", type=int, help="Task ID to delete")
-
-    # Reschedule Tasks
-    subparsers.add_parser("reschedule", help="Reschedule overdue tasks")
-
-    # Add Reflection
-    reflect_parser = subparsers.add_parser("reflect", help="Add today’s reflection")
-    reflect_parser.add_argument("reflection", type=str, help="Reflection text")
-
-    # Show Reflection
-    reflection_parser = subparsers.add_parser("reflection", help="Show reflection for a date (default: today)")
-    reflection_parser.add_argument("--date", type=str, help="Date (YYYY-MM-DD)")
-
-    args = parser.parse_args()
-    planner = Planner()
-
-    if args.command == "add":
-        planner.add_task(args.title, args.duration, args.priority, args.deadline)
-    elif args.command == "show":
-        planner.show_tasks()
-    elif args.command == "delete":
-        planner.delete_task(args.task_id)
-    elif args.command == "reschedule":
-        planner.reschedule_tasks()
-    elif args.command == "reflect":
-        planner.add_reflection(args.reflection)
-    elif args.command == "reflection":
-        planner.show_reflection(args.date)
-    else:
-        parser.print_help()
-
-    planner.close()
-
-
-if __name__ == "__main__":
-    main()
